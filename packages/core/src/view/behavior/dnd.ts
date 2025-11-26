@@ -11,6 +11,8 @@ export class Dnd {
   nodeConfig: OnDragNodeConfig | null = null
   lf: LogicFlow
   fakeNode: BaseNodeModel | null = null
+  docPointerMove?: (e: PointerEvent) => void
+  docPointerUp?: (e: PointerEvent) => void
 
   constructor(params: { lf: LogicFlow }) {
     const { lf } = params
@@ -40,15 +42,64 @@ export class Dnd {
     const { editConfigModel } = this.lf.graphModel
     if (!editConfigModel?.isSilentMode) {
       this.nodeConfig = nodeConfig
-      window.document.addEventListener('mouseup', this.stopDrag)
+      this.docPointerMove = (e: PointerEvent) => {
+        if (!this.nodeConfig) return
+        const overlay = this.lf.graphModel.rootEl.querySelector(
+          '[name="canvas-overlay"]',
+        ) as HTMLElement | null
+        const topEl = window.document.elementFromPoint(
+          e.clientX,
+          e.clientY,
+        ) as HTMLElement | null
+        const inside = topEl === overlay || (topEl && overlay?.contains(topEl))
+        if (!inside) {
+          this.onDragLeave()
+          return
+        }
+        if (!this.fakeNode) {
+          this.dragEnter(e)
+          return
+        }
+        this.onDragOver(e)
+      }
+      this.docPointerUp = (e: PointerEvent) => {
+        if (!this.nodeConfig) return
+        const overlay = this.lf.graphModel.rootEl.querySelector(
+          '[name="canvas-overlay"]',
+        ) as HTMLElement | null
+        const topEl = window.document.elementFromPoint(
+          e.clientX,
+          e.clientY,
+        ) as HTMLElement | null
+        const inside = topEl === overlay || (topEl && overlay?.contains(topEl))
+        if (inside) {
+          this.onDrop(e)
+        } else {
+          this.onDragLeave()
+        }
+        e.preventDefault()
+        e.stopPropagation()
+        this.stopDrag()
+      }
+      window.document.addEventListener('pointermove', this.docPointerMove)
+      window.document.addEventListener('pointerup', this.docPointerUp)
     }
   }
 
   stopDrag = () => {
+    console.log('stop')
+
     this.nodeConfig = null
-    window.document.removeEventListener('mouseup', this.stopDrag)
+    if (this.docPointerMove) {
+      window.document.removeEventListener('pointermove', this.docPointerMove)
+      this.docPointerMove = undefined
+    }
+    if (this.docPointerUp) {
+      window.document.removeEventListener('pointerup', this.docPointerUp)
+      this.docPointerUp = undefined
+    }
   }
-  dragEnter = (e: MouseEvent) => {
+  dragEnter = (e: PointerEvent) => {
     if (!this.nodeConfig || this.fakeNode) return
     this.fakeNode = this.lf.createFakeNode({
       ...this.nodeConfig,
@@ -79,6 +130,8 @@ export class Dnd {
     return false
   }
   onDragLeave = () => {
+    console.log('leave canvas')
+
     if (this.fakeNode) {
       this.lf.removeNodeSnapLine()
       this.lf.graphModel.removeFakeNode()
@@ -86,6 +139,8 @@ export class Dnd {
     }
   }
   onDrop = (e: MouseEvent) => {
+    console.log(111)
+
     if (!this.lf.graphModel || !e || !this.nodeConfig) {
       return
     }
@@ -108,16 +163,16 @@ export class Dnd {
     this.fakeNode = null
   }
 
-  eventMap() {
-    return {
-      onMouseEnter: this.dragEnter,
-      onMouseOver: this.dragEnter, // IE11
-      onMouseMove: this.onDragOver,
-      onMouseLeave: this.onDragLeave,
-      // onMouseOut: this.onDragLeave, // IE11
-      onMouseUp: this.onDrop,
-    }
-  }
+  // eventMap() {
+  //   return {
+  //     // onPointerEnter: this.dragEnter,
+  //     // onPointerOver: this.dragEnter, // IE11
+  //     // onMouseMove: this.onDragOver,
+  //     // onPointerLeave: this.onDragLeave,
+  //     // onMouseOut: this.onDragLeave, // IE11
+  //     // onMouseUp: this.onDrop,
+  //   }
+  // }
 }
 
 export default Dnd
