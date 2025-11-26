@@ -131,8 +131,6 @@ export class SelectionSelect {
    * 处理鼠标按下事件
    */
   private handleMouseDown(e: PointerEvent) {
-    console.log('handleMouseDown', e)
-
     if (!this.container || this.disabled) return
 
     // 禁用右键框选
@@ -172,7 +170,7 @@ export class SelectionSelect {
     wrapper.style.left = `${this.startPoint.x}px`
     this.container?.appendChild(wrapper)
     this.wrapper = wrapper
-    console.log('handleMouseDown add listener')
+
     document.addEventListener('pointermove', this.draw)
     document.addEventListener('pointerup', this.drawOff)
   }
