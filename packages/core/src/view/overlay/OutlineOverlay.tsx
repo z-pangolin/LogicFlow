@@ -115,12 +115,17 @@ export class OutlineOverlay extends Component<IProps> {
   getLineOutline(line: LineEdgeModel) {
     const { startPoint, endPoint } = line
     const style = line.getOutlineStyle()
-    return this.renderRectOutline(
-      [startPoint, endPoint],
-      style,
-      'lf-outline-edge',
-      { widthOffset: 10, heightOffset: 10 },
-    )
+
+    const rawPointerList = (line as any)?.properties?.pointerList
+    const pointsList =
+      rawPointerList.length >= 2
+        ? [startPoint, ...rawPointerList.slice(1, -1), endPoint]
+        : [startPoint, endPoint]
+
+    return this.renderRectOutline(pointsList, style, 'lf-outline-edge', {
+      widthOffset: 10,
+      heightOffset: 10,
+    })
   }
 
   // 折线outline

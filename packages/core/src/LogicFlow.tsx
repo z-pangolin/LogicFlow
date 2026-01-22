@@ -345,6 +345,11 @@ export class LogicFlow {
         model: _Model.LineEdgeModel,
       },
       {
+        type: 'operable',
+        view: _View.OperableEdge,
+        model: _Model.LineEdgeModel,
+      },
+      {
         type: 'polyline',
         view: _View.PolylineEdge,
         model: _Model.PolylineEdgeModel,

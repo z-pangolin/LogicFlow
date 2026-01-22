@@ -1,5 +1,6 @@
 import LogicFlow from '@logicflow/core'
 import '@logicflow/core/es/index.css'
+import LineNode from './Line'
 
 import { Card } from 'antd'
 import { useEffect, useRef } from 'react'
@@ -61,10 +62,10 @@ const data = {
     },
     {
       id: '3',
-      type: 'ellipse',
+      type: 'busbar-edge',
       x: 550,
       y: 100,
-      text: '椭圆',
+      text: '直线',
     },
     {
       id: '4',
@@ -95,6 +96,16 @@ const data = {
       text: 'html节点',
     },
   ],
+  edges: [
+    {
+      sourceNodeId: '1',
+      targetNodeId: '2',
+      type: 'operable',
+      properties: {
+        width: 80,
+      },
+    },
+  ],
 }
 
 export default function BasicNode() {
@@ -105,12 +116,17 @@ export default function BasicNode() {
       const lf = new LogicFlow({
         ...config,
         container: containerRef.current as HTMLElement,
+        adjustEdgeMiddle: false,
+        edgeTextDraggable: true,
         // container: document.querySelector('#graph') as HTMLElement,
         grid: {
-          size: 10,
+          size: 6,
         },
       })
-
+      lf.on('node:click', ({ data }) => {
+        console.log(data)
+      })
+      lf.register(LineNode)
       lf.render(data)
       lfRef.current = lf
       ;(window as any).lf = lf

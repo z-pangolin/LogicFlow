@@ -27,7 +27,7 @@ const config: Partial<LogicFlow.Options> = {
   grid: {
     size: 10,
   },
-  snapGrid: false,
+  snapGrid: true,
   keyboard: {
     enabled: true,
   },
@@ -291,10 +291,12 @@ export default function DynamicGroupDemo() {
       // lf.setSelectionSelectMode(true)
 
       // 添加事件监听
-      lf.on('node:properties-change', (event: unknown) => {
-        console.log('node:properties-change', event)
+      // lf.on('node:properties-change', (event: unknown) => {
+      //   console.log('node:properties-change', event)
+      // })
+      lf.on('node:resize', ({ preData, data, deltaX, deltaY }) => {
+        console.log('node:resize', preData, data, deltaX, deltaY)
       })
-
       lf.on('dynamicGroup:collapse', ({ collapse, nodeModel }) => {
         message.info(`分组${nodeModel.id} ${collapse ? '收起' : '展开'}`)
       })

@@ -636,8 +636,8 @@ export abstract class BaseEdge<P extends IProps> extends Component<
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
         >
-          {this.getShape()}
           {this.getAppend()}
+          {this.getShape()}
           {this.getText()}
           {this.getArrow()}
         </g>
